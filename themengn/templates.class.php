@@ -1,10 +1,9 @@
 ﻿<?php 
-
+// TODO: refactoring, cache, static
 class template 
 {
     
     var $template_vars;
-    
     var $templatesDir;
 
     function template() 
