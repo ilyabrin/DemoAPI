@@ -4,6 +4,10 @@
   *  
   *   request example:
   *   POST: api.php?app_id=110&method=getUserInfo&token=f4a7784848652029e4bbf2e0b5363c6f
+  *   POST: api.php?app_id=111&method=getUserInfo&token=f4a7784848652029e4bbf2e0b5363c6f
+  *   POST: api.php?app_id=112&method=getUserInfo&token=f4a7784848652029e4bbf2e0b5363c6f
+  *   POST: api.php?app_id=113&method=getUserInfo&token=f4a7784848652029e4bbf2e0b5363c6f
+  *   POST: api.php?app_id=114&method=getUserInfo&token=f4a7784848652029e4bbf2e0b5363c6f
   *   
  */
 require_once('pdo/class.db.php');
@@ -20,35 +24,47 @@ function ErrorHandler($error) { echo ($error); }
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 
+$apiMethods = array(
+	"getUserInfo",
+	"setUserInfo",
+	"getUserOnline",
+	"getServerTime"
+);
+
+$format = array();  // head - header http, type - default data format
 // необязательный параметр
-$format = (!empty($_REQUEST['format']) && ($_REQUEST['format']==='xml')) ? 'Content-Type:text/xml' : 'Content-type: application/json';
+$format['head'] = (!empty($_REQUEST['format']) && ($_REQUEST['format']==='xml')) ? 'Content-Type:text/xml' : 'Content-type: application/json';
+$format['type'] = 'json';
 
 // служебные переменные
 $app_id = (!empty($_REQUEST['app_id'])) ? stripcslashes(strip_tags($_REQUEST['app_id'])) : die('app_id undefined.');
 $method = (!empty($_REQUEST['method'])) ? stripcslashes(strip_tags($_REQUEST['method'])) : die('method undefined.');
 
+// от клиента пришла такая подпись запроса
 $requested_token  = (!empty($_REQUEST['token']))  ? stripcslashes(strip_tags($_REQUEST['token']))  : die('broken token.');
 
-   $db = new db("mysql:host=localhost;dbname=$db_name", $db_user, $db_pass);
-   $db->setErrorCallbackFunction("ErrorHandler");
-         
-   $sql = "SELECT `app_secret` FROM `api` WHERE ( `app_id`='$app_id' )";
+	$db = new db("mysql:host=localhost;dbname=$db_name", $db_user, $db_pass);
+	$db->setErrorCallbackFunction("ErrorHandler");
 
-   $secret = $db->run($sql);
+	$sql = "SELECT `app_secret` FROM `api` WHERE ( `app_id`='$app_id' )";
 
-   $api_query = array(
-      "app_id" => intval($app_id),
-      "method" => $method
-   );
+	$secret = $db->run($sql);
+
+	// данные для проверки
+	$api_query = array(
+	  "app_id" => intval($app_id),
+	  "method" => $method
+	);
 
    ksort($api_query);
    $query = ( array_implode( '=', '', $api_query ) );
-   $computed_token = md5($query.$secret[0]['app_secret']);
+   $computed_token = md5($query.$secret[0]['app_secret']); // вычисление эталонного хэша
 
+// если подпись запроса верна, то обрабатываем метод из запроса
 if ($computed_token === $requested_token)
    {
-      header($format);
-      if ('getUserInfo'   == $method) { echo json_encode($api_userdata); }
+      header($format['head']);
+      if ('getUserInfo'   == $method) { echo call('setUserInfo',$a=array(1=>"First",2=>"second") ); }    //$api->call('getUserInfo', $args); // $args is optional
       if ('getUserOnline' == $method) { echo json_encode($api_userdata_2); }
       if ('getServerTime' == $method) { echo json_encode($api_userdata_3); }
    }
@@ -57,4 +73,46 @@ if ($computed_token === $requested_token)
       echo json_encode($api_error);
       exit;
    }
+
+
+// вызов функции из api
+function call($function, $args=array()) {
+//TODO: $apiMethods должна быть видимой глобально (ответ: делай класс)
+$apiMethods = array(
+	"getUserInfo",
+	"setUserInfo",
+	"getUserOnline",
+	"getServerTime"
+);
+	if ($args) {
+		if (!is_array($args)) {
+			return '{"error":"args is not array"}';
+		}
+	}
+	
+	if (!$function) {
+			return '{"error":"function not found"}';
+	}
+	
+	if ( in_array($function, $apiMethods) ) {
+		if ($args) {
+			return call_user_func($function, $args);
+		}
+			return call_user_func($function);	
+	}
+}
+
+
+function getUserInfo() {
+	return '{"success":"You are superb!"}';
+}
+
+function setUserInfo($param) {
+//TODO: forach $param
+	return '{"param list":"'.$param.'"}';
+}
+
+$_options = array(1 => "First",2=>"Second",3=>"3Th");
+
+call('setUserInfo',$_options);
 ?>
