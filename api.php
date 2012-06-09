@@ -68,6 +68,19 @@ if ($computed_token === $requested_token)
       if ('getUserOnline' == $method) { echo json_encode($api_userdata_2); }
       if ('getServerTime' == $method) { echo json_encode($api_userdata_3); }
    }
+	/* prototype
+	///////////////
+   	if (in_array($method,$apiMethods)) {
+		if ($args) {
+			call($method, $args);
+		}
+		call($method);
+	}
+	else {
+		return $error; //method is not exist
+	}
+	//////////////
+	*/
    else
    {
       echo json_encode($api_error);
@@ -102,7 +115,7 @@ $apiMethods = array(
 	}
 }
 
-
+// объявление методов api
 function getUserInfo() {
 	return '{"success":"You are superb!"}';
 }
