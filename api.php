@@ -24,10 +24,10 @@ header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 $format = (!empty($_REQUEST['format']) && ($_REQUEST['format']==='xml')) ? 'Content-Type:text/xml' : 'Content-type: application/json';
 
 // служебные переменные
-$app_id = (!empty($_REQUEST['app_id'])) ? stripcslashes(strip_tags(mysql_real_escape_string($_REQUEST['app_id']))) : die('app_id undefined.');
-$method = (!empty($_REQUEST['method'])) ? stripcslashes(strip_tags(mysql_real_escape_string($_REQUEST['method']))) : die('method undefined.');
+$app_id = (!empty($_REQUEST['app_id'])) ? stripcslashes(strip_tags($_REQUEST['app_id'])) : die('app_id undefined.');
+$method = (!empty($_REQUEST['method'])) ? stripcslashes(strip_tags($_REQUEST['method'])) : die('method undefined.');
 
-$requested_token  = (!empty($_REQUEST['token']))  ? stripcslashes(strip_tags(mysql_real_escape_string($_REQUEST['token'])))  : die('broken token.');
+$requested_token  = (!empty($_REQUEST['token']))  ? stripcslashes(strip_tags($_REQUEST['token']))  : die('broken token.');
 
    $db = new db("mysql:host=localhost;dbname=$db_name", $db_user, $db_pass);
    $db->setErrorCallbackFunction("ErrorHandler");
