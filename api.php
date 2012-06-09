@@ -64,7 +64,7 @@ $requested_token  = (!empty($_REQUEST['token']))  ? stripcslashes(strip_tags($_R
 if ($computed_token === $requested_token)
    {
       header($format['head']);
-      if ('getUserInfo'   == $method) { echo call('setUserInfo',$a=array(1=>"First",2=>"second") ); }    //$api->call('getUserInfo', $args); // $args is optional
+      if ('getUserInfo'   == $method) { echo call('setUserInfo',$a=array("name"=>"First","lastname"=>"second") ); }    //$api->call('getUserInfo', $args); // $args is optional
       if ('getUserOnline' == $method) { echo json_encode($api_userdata_2); }
       if ('getServerTime' == $method) { echo json_encode($api_userdata_3); }
    }
@@ -96,7 +96,7 @@ $apiMethods = array(
 	
 	if ( in_array($function, $apiMethods) ) {
 		if ($args) {
-			return call_user_func($function, $args);
+			return call_user_func_array($function, $args);
 		}
 			return call_user_func($function);	
 	}
@@ -107,12 +107,7 @@ function getUserInfo() {
 	return '{"success":"You are superb!"}';
 }
 
-function setUserInfo($param) {
-//TODO: forach $param
-	return '{"param list":"'.$param.'"}';
+function setUserInfo($name, $lastname) {
+	return $name.' '.$lastname;
 }
-
-$_options = array(1 => "First",2=>"Second",3=>"3Th");
-
-call('setUserInfo',$_options);
 ?>
